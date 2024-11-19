@@ -1,28 +1,28 @@
 services:
-  db_alumnos:
+  alumnosdb:
     image: mysql:8.0
-    container_name: db_alumnos
+    container_name: alumnosdb
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: alumnos
-      MYSQL_USER: alumnos_user
-      MYSQL_PASSWORD: alumnos_password
+      MYSQL_USER: grajales
+      MYSQL_PASSWORD: soygay
     volumes:
       - db_alumnos_data:/var/lib/mysql
       - ./alumnos.sql:/docker-entrypoint-initdb.d/alumnos.sql
     networks:
       - default_network
 
-  db_maestros:
+  maestrosdb:
     image: mysql:8.0
-    container_name: db_maestros
+    container_name: maestrosdb
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: maestros
-      MYSQL_USER: maestros_user
-      MYSQL_PASSWORD: maestros_password
+      MYSQL_USER: grajales
+      MYSQL_PASSWORD: soygay
     volumes:
       - db_maestros_data:/var/lib/mysql
       - ./maestros.sql:/docker-entrypoint-initdb.d/maestros.sql
@@ -34,9 +34,9 @@ services:
     container_name: phpmyadmin1
     restart: always
     environment:
-      PMA_HOST: db_alumnos
-      PMA_USER: alumnos_user
-      PMA_PASSWORD: alumnos_password
+      PMA_HOST: alumnosdb
+      PMA_USER: grajales
+      PMA_PASSWORD: soygay
     ports:
       - "8080:80"
     depends_on:
@@ -49,9 +49,9 @@ services:
     container_name: phpmyadmin2
     restart: always
     environment:
-      PMA_HOST: db_maestros
-      PMA_USER: maestros_user
-      PMA_PASSWORD: maestros_password
+      PMA_HOST: maestrosdb
+      PMA_USER: grajales
+      PMA_PASSWORD: soygay
     ports:
       - "8083:80"
     depends_on:
@@ -66,10 +66,10 @@ services:
     container_name: app_alumnos
     restart: always
     environment:
-      DB_HOST: db_alumnos
+      DB_HOST: alumnosdb
       DB_NAME: alumnos
-      DB_USER: alumnos_user
-      DB_PASSWORD: alumnos_password
+      DB_USER: grajales
+      DB_PASSWORD: soygay
     ports:
       - "8081:80"
     depends_on:
@@ -84,10 +84,10 @@ services:
     container_name: app_maestros
     restart: always
     environment:
-      DB_HOST: db_maestros
+      DB_HOST: maestrosdb
       DB_NAME: maestros
-      DB_USER: maestros_user
-      DB_PASSWORD: maestros_password
+      DB_USER: grajales
+      DB_PASSWORD: soygay
       API_ALUMNO: app_alumnos
     ports:
       - "8082:80"
