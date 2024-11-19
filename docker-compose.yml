@@ -1,0 +1,105 @@
+services:
+  db_alumnos:
+    image: mysql:8.0
+    container_name: db_alumnos
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: alumnos
+      MYSQL_USER: alumnos_user
+      MYSQL_PASSWORD: alumnos_password
+    volumes:
+      - db_alumnos_data:/var/lib/mysql
+      - ./alumnos.sql:/docker-entrypoint-initdb.d/alumnos.sql
+    networks:
+      - default_network
+
+  db_maestros:
+    image: mysql:8.0
+    container_name: db_maestros
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: maestros
+      MYSQL_USER: maestros_user
+      MYSQL_PASSWORD: maestros_password
+    volumes:
+      - db_maestros_data:/var/lib/mysql
+      - ./maestros.sql:/docker-entrypoint-initdb.d/maestros.sql
+    networks:
+      - default_network
+
+  phpmyadmin1:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin1
+    restart: always
+    environment:
+      PMA_HOST: db_alumnos
+      PMA_USER: alumnos_user
+      PMA_PASSWORD: alumnos_password
+    ports:
+      - "8080:80"
+    depends_on:
+      - db_alumnos
+    networks:
+      - default_network
+
+  phpmyadmin2:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin2
+    restart: always
+    environment:
+      PMA_HOST: db_maestros
+      PMA_USER: maestros_user
+      PMA_PASSWORD: maestros_password
+    ports:
+      - "8083:80"
+    depends_on:
+      - db_maestros
+    networks:
+      - default_network
+
+  app_alumnos:
+    build:
+      context: .
+      dockerfile: dockerfile_alumnos.yaml
+    container_name: app_alumnos
+    restart: always
+    environment:
+      DB_HOST: db_alumnos
+      DB_NAME: alumnos
+      DB_USER: alumnos_user
+      DB_PASSWORD: alumnos_password
+    ports:
+      - "8081:80"
+    depends_on:
+      - db_alumnos
+    networks:
+      - default_network
+
+  app_maestros:
+    build:
+      context: .
+      dockerfile: dockerfile_maestros.yaml
+    container_name: app_maestros
+    restart: always
+    environment:
+      DB_HOST: db_maestros
+      DB_NAME: maestros
+      DB_USER: maestros_user
+      DB_PASSWORD: maestros_password
+      API_ALUMNO: app_alumnos
+    ports:
+      - "8082:80"
+    depends_on:
+      - db_maestros
+    networks:
+      - default_network
+
+volumes:
+  db_alumnos_data:
+  db_maestros_data:
+
+networks:
+  default_network:
+    driver: bridge
